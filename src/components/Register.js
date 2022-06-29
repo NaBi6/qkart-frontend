@@ -7,11 +7,28 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
+import {useHistory, Link} from "react-router-dom"
 
 const Register = () => {
   const { enqueueSnackbar } = useSnackbar();
 
+  const history = useHistory();
 
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: ""
+  });
+  // setFormData((prevState) => {
+  //   prevState.password = e.target.value;
+  //   return prevState;
+  // });
+  const [loading, setloading] = useState(false);
+
+  const handleInput = (e) => {
+    const [key, value] = [e.target.name, e.target.value];
+    setFormData((nextFormData) => ({ ...nextFormData, [key]: value }));
+  };
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
   /**
    * Definition for register handler
@@ -35,7 +52,36 @@ const Register = () => {
    *      "message": "Username is already taken"
    * }
    */
+
   const register = async (formData) => {
+    
+    if (!validateInput(formData)) return;
+    try {
+      setloading(true);
+      await axios.post(`${config.endpoint}/auth/register`, {
+        username: formData.username,
+        password: formData.password
+      });
+      setloading(false);
+      setFormData({
+        username: "",
+        password: "",
+        confirmPassword: "",
+      });
+      enqueueSnackbar("Registered successfully", { variant: "success" });
+      history.push("/login");
+    }
+    catch (e) {
+      setloading(false);
+      if (e.response && e.response.status === 400) {
+        enqueueSnackbar(e.response.data.message, { variant: "error" });
+      } else {
+        enqueueSnackbar(
+          "something went wrong. Check that the backend is running, reachable and return valid JSON",
+          { variant: "error" }
+        );
+      }
+    }
   };
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement user input validation logic
@@ -57,6 +103,31 @@ const Register = () => {
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
+    if (!data.username) {
+      enqueueSnackbar("Username is required field", { variant: "warning" });
+      return false;
+    }
+    if (data.username.length < 6) {
+      enqueueSnackbar("Username must be atleast 6 characters", { variant: "warning" });
+      return false;
+    }
+    if (!data.password) {
+      enqueueSnackbar("Password is required field", { variant: "warning" });
+      return false;
+    }
+    if (data.password.length < 6) {
+      enqueueSnackbar("Password must be atleast 6 characters", {
+        variant: "warning"
+      });
+      return false;
+    }
+    if (data.password !== data.confirmPassword) {
+      enqueueSnackbar("Password do not match", {
+        variant: "warning"
+      });
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -78,6 +149,9 @@ const Register = () => {
             name="username"
             placeholder="Enter Username"
             fullWidth
+            value={formData.username}
+            onChange={handleInput}
+           
           />
           <TextField
             id="password"
@@ -88,6 +162,8 @@ const Register = () => {
             helperText="Password must be atleast 6 characters length"
             fullWidth
             placeholder="Enter a password with minimum 6 characters"
+            value={formData.password}
+            onChange={handleInput}
           />
           <TextField
             id="confirmPassword"
@@ -96,18 +172,28 @@ const Register = () => {
             name="confirmPassword"
             type="password"
             fullWidth
+            placeholder="Re-enter password to confirm"
+            value={formData.confirmPassword}
+            onChange={handleInput}
           />
-           <Button className="button" variant="contained">
+          {
+            loading ? (
+              <Box display="flex" justifyContent="center" alignItems="center">
+                <CircularProgress size={25} color="primary" />
+              </Box>
+            ): 
+         ( <Button onClick={() => register(formData)} className="button" variant="contained">
             Register Now
            </Button>
+          )}
           <p className="secondary-action">
             Already have an account?{" "}
-             <a className="link" href="#">
+             <Link className="link" to="/login">
               Login here
-             </a>
+             </Link>
           </p>
         </Stack>
-      </Box>
+      </Box>¬
       <Footer />
     </Box>
   );
