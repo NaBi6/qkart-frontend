@@ -7,9 +7,10 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Register.css";
-import {useHistory, Link} from "react-router-dom"
+import { useHistory, Link } from "react-router-dom"
 
 const Register = () => {
+  // debugger;
   const { enqueueSnackbar } = useSnackbar();
 
   const history = useHistory();
@@ -23,7 +24,7 @@ const Register = () => {
   //   prevState.password = e.target.value;
   //   return prevState;
   // });
-  const [loading, setloading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleInput = (e) => {
     const [key, value] = [e.target.name, e.target.value];
@@ -57,12 +58,12 @@ const Register = () => {
     
     if (!validateInput(formData)) return;
     try {
-      setloading(true);
+      setLoading(true);
       await axios.post(`${config.endpoint}/auth/register`, {
         username: formData.username,
         password: formData.password
       });
-      setloading(false);
+      setLoading(false);
       setFormData({
         username: "",
         password: "",
@@ -70,9 +71,10 @@ const Register = () => {
       });
       enqueueSnackbar("Registered successfully", { variant: "success" });
       history.push("/login");
+      window.location.reload();
     }
     catch (e) {
-      setloading(false);
+      setLoading(false);
       if (e.response && e.response.status === 400) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
       } else {
