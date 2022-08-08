@@ -11,7 +11,7 @@
 .form {
     background-color: white;
     border-radius: 10px;
-    padding: 2rem;
+    padding: 1rem 2rem;
     min-width: 80%;
     margin: 2rem;
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
@@ -42,13 +42,13 @@
     color: #45c09f;
 }
 
-/* .button {
+.button {
     background-color: #00a278 !important;
 }
 
 .button:hover {
     background-color: #00845c !important;
-} */
+}
 
 @media screen and (min-width: 768px) {
     .content {

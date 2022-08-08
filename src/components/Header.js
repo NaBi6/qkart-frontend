@@ -1,5 +1,5 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Avatar, Button, Stack } from "@mui/material";
+import { Avatar, Button, Stack} from "@mui/material";
 import Box from "@mui/material/Box";
 import React from "react";
 import { useHistory } from "react-router-dom";
@@ -7,70 +7,62 @@ import "./Header.css";
 
 const Header = ({ children, hasHiddenAuthButtons }) => {
   // debugger;
+  const username = localStorage.getItem("username");
   const history = useHistory();
-  const logout = () => {
-    localStorage.removeItem("username");
-    localStorage.removeItem("token");
-    localStorage.removeItem("balance");
-    
-    history.push("/", { from: "Header" });
+    let logout = () => {
+    localStorage.clear();
     window.location.reload();
-  };
+    // enqueueSnackbar("Logged Out Successfully", { variant:"success" })
+    history.push("/", { from: "Header" })
+  }
 
-  if (hasHiddenAuthButtons) {
+  
+  
     return (
       <Box className="header">
         <Box className="header-title">
           <img src="logo_light.svg" alt="QKart-icon"></img>
         </Box>
-        <Button
-          className="explore-button"
-          startIcon={<ArrowBackIcon />}
-          variant="text"
-          onClick={() => history.push("/", { from: "Header" })}
+        
+        {children}
+
+        {hasHiddenAuthButtons ? (
+          <Button
+            className="explore-button"
+            startIcon={<ArrowBackIcon />}
+            variant="text"
+            onClick={() => {
+              history.push("/")
+            }}    
         >
           Back to explore
         </Button>
-      </Box>
-    );
-  }
-  
-  
-    return (
-      <Box className="header">
-        <Box className="header-title">
-
-            <img src="logo_light.svg" alt="QKart-icon"></img>
-        </Box>
-        
-         {children}
-
-      <Stack direction="row" spacing={1} alignItems="center">
-        {localStorage.getItem("username") ? (
-          <>
-            <Avatar src="avatar.png" alt={localStorage.getItem("username")} />
-            <p className="username-text">{localStorage.getItem("username")}</p>
-            <Button type="primary" onClick={logout}>
-              Logout
-            </Button>
-          </>
-        ) : (
-          <>
+        ) : username ? (
+             <Stack direction="row" spacing={2} alignItems="center" key="logout">
+              <Avatar src="avatar.png" alt="crio.do"/>
+              <p style={{ marginTop: "0.02rem" }}>{username}</p>
+              <Button
+                variant="text"
+                onClick={logout}>
+                LOGOUT
+              </Button>
+            </Stack>
+          ) : (
+               <Stack direction="row" spacing={2} alignItems="center" key="login">
+                <Button variant="text" onClick={() => history.push("/login")}>
+                  LOGIN
+                </Button>
                 <Button
+                  name="logout"
                   variant="contained"
-                  onClick={() => history.push("/login", { from: "Header" })}>
-              Login
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => history.push("/register", { from: "Header" })}
+                  onClick={()=>history.push("/register")}
                 >
-              Register
-            </Button>
-          </>
-        )}
-      </Stack>
-    </Box>
+                  REGISTER
+                </Button>
+              </Stack>
+        )
+      }
+      </Box>
     );
 };
 
