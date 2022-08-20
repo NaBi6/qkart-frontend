@@ -137,7 +137,6 @@ const ItemQuantity = ({
   );
 };
 
-
 /**
  * Component to display the Cart view
  * 
@@ -154,7 +153,6 @@ const ItemQuantity = ({
  *    If product quantity on cart is to be displayed as read only without the + - options to change quantity
  * 
  */
- //cartData
 const Cart = ({
   products,
   items = [],
