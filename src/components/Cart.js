@@ -79,7 +79,22 @@ export const getTotalCartValue = (items = []) => {
   return total; 
 };
 
+// TODO: CRIO_TASK_MODULE_CHECKOUT - Implement function to return total cart quantity
+/**
+ * Return the sum of quantities of all products added to the cart
+ *
+ * @param { Array.<CartItem> } items
+ *    Array of objects with complete data on products in cart
+ *
+ * @returns { Number }
+ *    Total quantity of products added to the cart
+ *
+ */
+export const getTotalItems = (items = []) => {
+  return items.length;
+};
 
+// TODO: CRIO_TASK_MODULE_CHECKOUT - Add static quantity view for Checkout page cart
 /**
  * Component to display the current quantity for a product and + and - buttons to update product quantity on cart
  * 
@@ -92,13 +107,21 @@ export const getTotalCartValue = (items = []) => {
  * @param {Function} handleDelete
  *    Handler function which reduces the quantity of a product in cart by 1
  * 
+ * @param {Boolean} isReadOnly
+ *    If product quantity on cart is to be displayed as read only without the + - options to change quantity
  * 
  */
+
+
 const ItemQuantity = ({
   value,
   handleAdd,
   handleDelete,
+  isReadOnly,
 }) => {
+  if (isReadOnly) {
+    return <Box>Qty: {value}</Box>;
+  }
   return (
     <Stack direction="row" alignItems="center">
       <IconButton size="small" color="primary" onClick={handleDelete}>
@@ -114,6 +137,7 @@ const ItemQuantity = ({
   );
 };
 
+
 /**
  * Component to display the Cart view
  * 
@@ -126,15 +150,27 @@ const ItemQuantity = ({
  * @param {Function} handleDelete
  *    Current quantity of product in cart
  * 
+ * @param {Boolean} isReadOnly
+ *    If product quantity on cart is to be displayed as read only without the + - options to change quantity
  * 
  */
+ //cartData
 const Cart = ({
   products,
   items = [],
   handleQuantity,
-  cartData
+  hasCheckedoutButton = false,
+  isReadOnly = false,
 }) => {
+  
+  const token = localStorage.getItem("token");
+  
   const history = useHistory();
+  
+  const routeToChechkOut = () => {
+    history.push("/checkout", { from: "Cart" });
+  };
+  
   if (!items.length) {
     return (
       <Box className="cart empty">
@@ -145,12 +181,12 @@ const Cart = ({
       </Box>
     );
   }
-  console.log(items);
+  // console.log(items);
   return (
     <>
       <Box className="cart">
         {/* TODO: CRIO_TASK_MODULE_CART - Display view for each cart item with non-zero quantity */}
-        {products.length && items.length && items.map((item,index) => {
+        {products.length && items.length && items.map((item) => {
           return (
             <Box display="flex" alignItems="flex-start" padding="1rem" key={item._id}>
               <Box className="image-container">
@@ -179,12 +215,13 @@ const Cart = ({
               <ItemQuantity
                 value={item.qty}
                 handleAdd={ () => {
-                   handleQuantity(localStorage.getItem('token'), cartData, products, item._id, item.qty+1)
+                  handleQuantity(token, items, products, item._id, item.qty+1)
                    
                 }}
                 handleDelete={ () => {
-                  handleQuantity(localStorage.getItem('token'), cartData, products, item._id, item.qty-1)
+                  handleQuantity(token, items, products, item._id, item.qty-1)
                 }}
+                isReadOnly={isReadOnly}
               /> 
               <Box padding="0.5rem" fontWeight="700">
                ${item.cost} 
@@ -213,19 +250,42 @@ const Cart = ({
             ${getTotalCartValue(items)}
           </Box>
         </Box>
-
+        
+        {hasCheckedoutButton && (
         <Box display="flex" justifyContent="flex-end" className="cart-footer">
           <Button
             color="primary"
             variant="contained"
             startIcon={<ShoppingCart />}
             className="checkout-btn"
-            onClick={() => history.push("/checkout")}
+            onClick={routeToChechkOut}
           >
             Checkout
           </Button>
         </Box>
+        )}
       </Box>
+      {isReadOnly && (
+          <Box className="cart" padding="1rem">
+            <h2>Order Details</h2>
+            <Box className="cart-row">
+              <p>Products</p>
+              <p>{getTotalItems(items)}</p>
+            </Box>
+            <Box className="cart-row">
+              <p>Subtotal</p>
+              <p>{getTotalCartValue(items)}</p>
+            </Box>
+            <Box className="cart-row">
+              <p>Shipping Charges</p>
+              <p>$0</p>
+            </Box>
+            <Box className="cart-row" fontSize="1.25rem" fontWeight="700">
+              <p>Total</p>
+              <p>{getTotalCartValue(items)}</p>
+            </Box>
+          </Box>
+      )}
     </>
   );
 };
